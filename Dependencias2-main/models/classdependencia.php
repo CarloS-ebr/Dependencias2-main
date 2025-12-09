@@ -28,11 +28,11 @@ class Dependencias {
         return $this->conexion->ejecutar($sql);
     }
 
-    function eliminar($id) {
-        $id = (int)$id;
-        $sql = "DELETE FROM dependencia WHERE id_dependencia={$id}";
-        return $this->conexion->ejecutar($sql);
-    }
+   function eliminar($id) {
+    $sql = "DELETE FROM dependencia WHERE id_dependencia = $id";
+    $resultado = $this->conexion->ejecutar($sql);
+    return $resultado;
+}
 
     function buscar($id) {
         $id = (int)$id;

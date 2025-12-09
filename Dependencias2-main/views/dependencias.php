@@ -6,35 +6,60 @@ $conecta = new conexion("172.25.85.224", "gobierno", "postgres", "240416");
 $conecta->conectar();
 
 $objDependencia = new Dependencias($conecta);
+
 $txtNombre = "";
 $txtResponsable = "";
 $id = "";
 $etiqueta = "Guardar";
 
-// Guardar o modificar
+/* =====================
+   GUARDAR O MODIFICAR
+   ===================== */
 if (isset($_POST['nombre'], $_POST['responsable'])) {
+
     if ($_POST['id_dependencias'] == "") {
         $objDependencia->insertar($_POST['nombre'], $_POST['responsable']);
     } else {
         $objDependencia->modificar($_POST['id_dependencias'], $_POST['nombre'], $_POST['responsable']);
     }
+
+    header("Location: dependencias.php?ok=1");
+    exit;
 }
 
-// Eliminar o preparar para modificar
-if (isset($_GET['opcion'])) {
-    if ($_GET['opcion'] == 'eliminar') {
-        $id = $_GET['id'];
-        $objDependencia->eliminar($id);
+/* =====================
+   ELIMINAR DEPENDENCIA
+   ===================== */
+if (isset($_GET['opcion']) && $_GET['opcion'] == 'eliminar') {
+
+    $id = (int) $_GET['id'];
+
+    $resultado = $objDependencia->eliminar($id);
+
+    if ($resultado === false) {
+        header("Location: dependencias.php?error=1");
+        exit;
     }
-    if ($_GET['opcion'] == 'modificar') {
-        $id = $_GET['id'];
-        $datosDependencia = $objDependencia->buscar($id);
-        while ($row = pg_fetch_row($datosDependencia)) {
-            $txtNombre = $row[1];
-            $txtResponsable = $row[2];
-        }
-        $etiqueta = "Modificar";
+
+    header("Location: dependencias.php?eliminado=1");
+    exit;
+}
+
+/* =====================
+   MODIFICAR DEPENDENCIA
+   ===================== */
+if (isset($_GET['opcion']) && $_GET['opcion'] == 'modificar') {
+
+    $id = (int) $_GET['id'];
+
+    $datosDependencia = $objDependencia->buscar($id);
+
+    if ($datosDependencia && $row = pg_fetch_row($datosDependencia)) {
+        $txtNombre = $row[1];
+        $txtResponsable = $row[2];
     }
+
+    $etiqueta = "Modificar";
 }
 
 $datos = $objDependencia->listar();
@@ -52,6 +77,20 @@ $datos = $objDependencia->listar();
 <?php include("navbar.php"); ?>
 
 <div class="container">
+  <?php if (isset($_GET['ok'])): ?>
+    <div class="alert alert-success">Datos guardados correctamente.</div>
+<?php endif; ?>
+
+<?php if (isset($_GET['eliminado'])): ?>
+    <div class="alert alert-success">Dependencia eliminada correctamente.</div>
+<?php endif; ?>
+
+<?php if (isset($_GET['error'])): ?>
+    <div class="alert alert-danger">
+        No se puede eliminar la dependencia porque tiene empleados o mobiliario asignado.
+    </div>
+<?php endif; ?>
+
 
   <h2 class="mb-4">Gestión de Dependencias</h2>
 
