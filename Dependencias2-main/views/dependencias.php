@@ -36,8 +36,13 @@ if (isset($_GET['opcion']) && $_GET['opcion'] == 'eliminar') {
 
     $resultado = $objDependencia->eliminar($id);
 
-    if ($resultado === false) {
+    if ($resultado === "FK_ERROR") {
         header("Location: dependencias.php?error=1");
+        exit;
+    }
+
+    if ($resultado === false) {
+        header("Location: dependencias.php?error2=1");
         exit;
     }
 
@@ -85,11 +90,19 @@ $datos = $objDependencia->listar();
     <div class="alert alert-success">Dependencia eliminada correctamente.</div>
 <?php endif; ?>
 
+
 <?php if (isset($_GET['error'])): ?>
     <div class="alert alert-danger">
-        No se puede eliminar la dependencia porque tiene empleados o mobiliario asignado.
+        ❌ No se puede eliminar esta dependencia porque está siendo usada en empleados o mobiliario.
     </div>
 <?php endif; ?>
+
+<?php if (isset($_GET['error2'])): ?>
+    <div class="alert alert-danger">
+        No se puede eliminar esta dependencia porque está siendo usada en empleados o mobiliario.
+    </div>
+<?php endif; ?>
+
 
 
   <h2 class="mb-4">Gestión de Dependencias</h2>

@@ -34,11 +34,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($_GET['opcion'])) {
     $op = $_GET['opcion'];
     $id = $_GET['id'] ?? "";
-    if ($op === 'eliminar' && $id !== "") {
-        $objMobiliario->eliminar($id);
-        header("Location: " . $_SERVER['PHP_SELF']);
+   if ($op === 'eliminar' && $id !== "") {
+
+    $resultado = $objMobiliario->eliminar($id);
+
+    if ($resultado === "FK_ERROR") {
+        header("Location: mobiliario.php?error=1");
         exit;
     }
+
+    if ($resultado === false) {
+        header("Location: mobiliario.php?error2=1");
+        exit;
+    }
+
+    header("Location: mobiliario.php?eliminado=1");
+    exit;
+}
     if ($op === 'modificar' && $id !== "") {
         $datos = $objMobiliario->buscar($id);
         if ($datos && $row = pg_fetch_assoc($datos)) {
@@ -64,6 +76,20 @@ $datos = $objMobiliario->listar();
 <?php include("navbar.php"); ?>
 
 <div class="container">
+  
+
+<?php if (isset($_GET['error2'])): ?>
+    <div class="alert alert-danger">
+        No se puede eliminar este mobiliario porque está asignado a un asignacion
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_GET['eliminado'])): ?>
+    <div class="alert alert-success">
+        Mobiliario eliminado correctamente.
+    </div>
+<?php endif; ?>
+
   <h2 class="mb-4">Gestión de Mobiliario</h2>
 
   <div class="card shadow p-3 mb-4">

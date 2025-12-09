@@ -29,12 +29,22 @@ class Mobiliario {
         $sql = "UPDATE mobiliario SET nombre='{$nombre}', numero_inventario='{$inventario}', id_dependencia={$id_dep} WHERE id_mobiliario={$id}";
         return $this->conexion->ejecutar($sql);
     }
+function eliminar($id) {
+    $id = (int)$id;
+    $sql = "DELETE FROM mobiliario WHERE id_mobiliario={$id}";
+    $res = @pg_query($this->conexion->getConexion(), $sql);
 
-    function eliminar($id) {
-        $id = (int)$id;
-        $sql = "DELETE FROM mobiliario WHERE id_mobiliario={$id}";
-        return $this->conexion->ejecutar($sql);
+    if (!$res) {
+        $error = pg_last_error($this->conexion->getConexion());
+
+        if (str_contains($error, "23503")) {
+            return "FK_ERROR";  // No se puede eliminar por clave foránea
+        }
+        return false;
     }
+
+    return true;
+}
 
     function buscar($id) {
         $id = (int)$id;
