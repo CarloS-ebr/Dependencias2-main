@@ -41,5 +41,22 @@ class Mobiliario {
         $sql = "SELECT * FROM mobiliario WHERE id_mobiliario={$id}";
         return $this->conexion->ejecutar($sql);
     }
+  function eliminarPorEmpleado($id_empleado) {
+
+    // 1. Obtener todos los mobiliarios asignados a ese empleado
+    $sql = "SELECT id_mobiliario FROM asignacion WHERE id_empleado = $id_empleado";
+    $res = $this->conexion->ejecutar($sql);
+
+    if ($res && pg_num_rows($res) > 0) {
+
+        while ($row = pg_fetch_assoc($res)) {
+            $id_mob = (int)$row['id_mobiliario'];
+            
+            // 2. Eliminar el mobiliario
+            $sqlDel = "DELETE FROM mobiliario WHERE id_mobiliario = $id_mob";
+            $this->conexion->ejecutar($sqlDel);
+        }
+    }
+  }
 }
 ?>

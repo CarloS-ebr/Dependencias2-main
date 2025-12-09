@@ -32,13 +32,20 @@ class conexion {
     }
 
     function ejecutar($sql){
-        $this->conectar();
-        $res = pg_query($this->conexionDB, $sql);
-        if ($res === false) {
-            error_log("SQL ERROR: " . pg_last_error($this->conexionDB) . " -- SQL: $sql");
-        }
-        return $res;
+    $this->conectar();
+    $res = @pg_query($this->conexionDB, $sql);
+
+    if (!$res) {
+        // Guardamos el error de PostgreSQL
+        return [
+            "error" => true,
+            "mensaje" => pg_last_error($this->conexionDB),
+            "sql" => $sql
+        ];
     }
+
+    return $res;
+}
 
     function getConexion(){
         $this->conectar();
